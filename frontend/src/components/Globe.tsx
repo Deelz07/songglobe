@@ -106,7 +106,7 @@ const GlobeComponent = () => {
     // Auto-rotation
     let lastInteractionTime = Date.now();
     const autoRotationDelay = 1000;
-    const autoRotationSpeed = 0.001;
+    const autoRotationSpeed = 0.0001;
     let isAutoRotating = true;
     let userRotationY = 0;
 
@@ -140,10 +140,14 @@ const GlobeComponent = () => {
       
       return { lat, lng };
     };
-    
+
+    const BASE_SIZE = 0.1
+    const MIN_SCALE = 0.03;  // Minimum scale factor
+    const MAX_SCALE = 2.0;  // Maximum scale factor
+
     // Create a pin at a specific lat/lng
     const createMarker = (lat: number, lng: number, color: number = 0xff4136): THREE.Mesh => {
-      const markerGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+      const markerGeometry = new THREE.SphereGeometry(BASE_SIZE, 16, 16);
       const markerMaterial = new THREE.MeshBasicMaterial({ color });
       const marker = new THREE.Mesh(markerGeometry, markerMaterial);
       
@@ -154,12 +158,37 @@ const GlobeComponent = () => {
       // Store lat/lng data with the marker
       marker.userData = { lat, lng };
       
+      //initial scale
+      marker.scale.set(1, 1, 1);
+
       // Add to markers group
       markersGroup.add(marker);
       
       return marker;
     };
     
+    //scale marker size with CAMERA 
+    const scaleMarkerSize = () => {
+      if (!markersRef.current || !cameraRef.current) return;
+  
+      // Get the current zoom level (camera distance)
+      const zoom = cameraRef.current.position.z;
+      
+      // Calculate scale factor based on zoom level
+      // When zoom is at minZoom (5.5), scale should be MAX_SCALE
+      // When zoom is at maxZoom (18), scale should be MIN_SCALE
+      const scaleFactor = THREE.MathUtils.lerp(
+        MIN_SCALE,
+        MAX_SCALE,
+        (zoom - minZoom) / (maxZoom - minZoom)
+      );
+      
+      // Apply scale to all markers
+      markersRef.current.children.forEach((marker) => {
+        marker.scale.set(scaleFactor, scaleFactor, scaleFactor);
+      });
+    }
+
     // Function to get country/region from lat/lng
     // In a real implementation, you'd use a GeoJSON dataset or API
     const getLocationInfo = async (lat: number, lng: number): Promise<RegionDetails | null> => {
@@ -281,6 +310,8 @@ const GlobeComponent = () => {
         isAutoRotating = false;
         userRotationY = globe.rotation.y;
       }
+
+      scaleMarkerSize();
 
       renderer.render(scene, camera);
     };
@@ -404,6 +435,7 @@ const GlobeComponent = () => {
       const constrainedZ = Math.max(minZoom, Math.min(maxZoom, newZ));
       camera.position.z = constrainedZ;
       setZoomLevel(constrainedZ);
+      scaleMarkerSize();
     };
 
     // Add example marker
@@ -420,6 +452,7 @@ const GlobeComponent = () => {
       const constrainedZ = Math.max(minZoom, Math.min(maxZoom, newZ));
       camera.position.z = constrainedZ;
       setZoomLevel(constrainedZ);
+      scaleMarkerSize();
     };
 
     // Window resize handler
