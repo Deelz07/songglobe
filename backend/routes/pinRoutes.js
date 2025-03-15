@@ -4,6 +4,8 @@ const User = require('../models/User');
 
 const router = express.Router();
 
+const DEFAULT_RADIUS = 5000
+
 // Create a new Pin
 router.post('/create', async (req, res) => {
     try {
@@ -46,6 +48,7 @@ router.get('/user/:user_id', async (req, res) => {
     }
 });
 
+// get all pins within default radius of a click
 router.get('/nearby', async (req, res) => {
     try {
         const { latitude, longitude, maxDistance } = req.query;
@@ -54,7 +57,7 @@ router.get('/nearby', async (req, res) => {
             location: {
                 $near: {
                     $geometry: { type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)] },
-                    $maxDistance: parseInt(maxDistance) || 5000  // Default: 5km radius
+                    $maxDistance: parseInt(maxDistance) || DEFAULT_RADIUS
                 }
             }
         });
