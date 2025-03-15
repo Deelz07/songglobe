@@ -7,7 +7,7 @@
  */
 
 async function add_pin(location,song,date,time) {
-    /** Create a new instance of a pin */
+    /* Create a new instance of a pin */
 
     try {
         const pinData = {
@@ -17,9 +17,9 @@ async function add_pin(location,song,date,time) {
             time
         };
 
-    /** Adds pin to the database asasdd */
+    /* Adds pin to the database */
         {
-        const response = await fetch('/api/pins/create', {
+        const response = await fetch('http://localhost:5000/api/pins/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
