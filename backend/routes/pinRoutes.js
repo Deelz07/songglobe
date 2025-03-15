@@ -68,6 +68,28 @@ router.get('/nearby', async (req, res) => {
     }
 });
 
+// Get pin by pin_id
+router.get('/:id', async (req, res) => {
+    try {
+        const pin = await Pin.findOne({ pin_id: req.params.id });
+        if (!pin) {
+            return res.status(404).json({ message: 'Pin not found' });
+        }
+        res.status(200).json(pin);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
+
+// Get all pins CAN REMOVE LATER, JUST USED TO TEST
+router.get('/', async (req, res) => {
+    try {
+        const pins = await Pin.find({});
+        res.json(pins);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 module.exports = router;
