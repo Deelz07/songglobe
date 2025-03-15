@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Globe Example</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #globe-container { position: absolute; width: 100%; height: 100%; }
+
+  </style>
+  <script src="//unpkg.com/globe.gl"></script>
+  
+</head>
+<body>
+  <div id="globe-container"></div>
+
+  <!-- Import the globe.gl module -->
+  <script type="module">
+
+    new Globe(document.getElementById('globe-container'))
+      .globeImageUrl('images/earth-8k.jpg')
+      .bumpImageUrl('images/earth-topology.png')
+      .showAtmosphere(true)
+      .atmosphereColor('#3a86ff');
+    // const locations = [
+    //   { lat: 40.7128, lng: -74.0060, size: 10, color: 'red' },
+    //   { lat: 51.5074, lng: -0.1278, size: 8, color: 'blue' },
+    //   { lat: 34.0522, lng: -118.2437, size: 7, color: 'green' }
+    // ];
+
+    new Globe()
+
+
+
+    // globe.pointsData(locations)
+    //   .pointAltitude('size')
+    //   .pointColor('color');
+
+  </script>
+</body>
+</html>
+
+
