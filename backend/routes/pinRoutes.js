@@ -46,5 +46,25 @@ router.get('/user/:user_id', async (req, res) => {
     }
 });
 
+router.get('/nearby', async (req, res) => {
+    try {
+        const { latitude, longitude, maxDistance } = req.query;
+
+        const pins = await Pin.find({
+            location: {
+                $near: {
+                    $geometry: { type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)] },
+                    $maxDistance: parseInt(maxDistance) || 5000  // Default: 5km radius
+                }
+            }
+        });
+
+        res.status(200).json(pins);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 
 module.exports = router;
