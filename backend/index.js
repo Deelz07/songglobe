@@ -2,11 +2,14 @@ require('dotenv').config( { path: '../.env' });
 const express = require('express');
 const connectDB = require('./database/connection');
 
+const cors = require('cors');
+
 const app = express();
 const PORT = process.env.PORT || 5173;
 
 connectDB();
 
+app.use(cors());  // Add this line to enable CORS for all origins
 app.use(express.json());
 
 // Import Routes

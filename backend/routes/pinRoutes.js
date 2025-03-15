@@ -9,29 +9,38 @@ const DEFAULT_RADIUS = 5000
 // Create a new Pin
 router.post('/create', async (req, res) => {
     try {
-        const { pin_id, song, user_id, latitude, longitude } = req.body;
+        const { song, user_id, location } = req.body;
+        const [latitude, longitude] = location.coordinates;
+
+        // Log the incoming data for debugging
+        console.log(req.body)
 
         // Check if user exists
         const user = await User.findOne({ user_id });
         if (!user) return res.status(404).json({ error: "User not found" });
 
-        // Create the pin with location
+        // Log the location data for debugging
+        console.log('Creating pin with location:', { coordinates: [longitude, latitude] });
+
+        // Create the pin with location (coordinates should now be valid)
         const pin = new Pin({
-            pin_id,
             song,
             user_id,
             location: {
                 type: "Point",
-                coordinates: [longitude, latitude]  // MongoDB stores as [lng, lat]
-            }
+                coordinates: [longitude, latitude],  // MongoDB stores as [longitude, latitude]
+            },
         });
 
+        // Save the pin
         await pin.save();
         res.status(201).json({ message: "Pin created successfully", pin });
     } catch (error) {
+        console.error(error);  // Log the error for debugging
         res.status(500).json({ error: error.message });
     }
 });
+
 
 
 // Get all Pins for a User
