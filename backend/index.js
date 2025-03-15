@@ -9,6 +9,14 @@ connectDB();
 
 app.use(express.json());
 
+// Import Routes
+const userRoutes = require('./routes/userRoutes');
+const pinRoutes = require('./routes/pinRoutes');
+
+// Register Routes
+app.use('/api/users', userRoutes);
+app.use('/api/pins', pinRoutes);
+
 app.get('/', (req, res) => {
     res.send('API is running...');
 });
