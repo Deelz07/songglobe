@@ -13,5 +13,5 @@ globe.onClick(async (event) => {
         longitude: lng 
     };
 
-    await sendPinToBackend(pinData);
+    await add_pin(pinData);
 });
