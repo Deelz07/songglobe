@@ -9,7 +9,8 @@ const PinSchema = new mongoose.Schema({
     location: {
         type: { type: String, enum: ['Point'], required: true, default: 'Point' },
         coordinates: { type: [Number], required: true },  // [longitude, latitude]
-    }
+    },
+    pin_image: { type: String, default: '/assets/pin_image.png' }  // Updated to use the asset path
 });
 
 // Use the autoIncrement plugin on the pin_id field

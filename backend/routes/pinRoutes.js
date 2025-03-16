@@ -41,6 +41,18 @@ router.post('/create', async (req, res) => {
     }
 });
 
+// Delete a pin based on pin_id
+router.delete('/:id', async (req, res) => {
+    try {
+        const pin = await Pin.findOneAndDelete({ pin_id: req.params.id });
+        if (!pin) {
+            return res.status(404).json({ message: 'Pin not found' });
+        }
+        res.status(200).json({ message: 'Pin deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 
 // Get all Pins for a User

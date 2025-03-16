@@ -24,13 +24,13 @@ async function seedDatabase() {
         // Sample Pins
         const pins = [
             {
-                pin_id: "p001",
+                pin_id: 1,
                 song: "Shape of You",
                 user_id: "12345",
                 location: { type: "Point", coordinates: [-74.006, 40.7128] } // NYC
             },
             {
-                pin_id: "p002",
+                pin_id: 2,
                 song: "Blinding Lights",
                 user_id: "67890",
                 location: { type: "Point", coordinates: [-118.2437, 34.0522] } // LA
