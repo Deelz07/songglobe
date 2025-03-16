@@ -1,0 +1,58 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-color: #f4f4f4;
+    padding: 20px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+.sidebar input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+}
+
+.sidebar button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.sidebar button:hover {
+    background-color: #45a049;
+}
+
+.sidebar h2 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+/* sidebar.css */
+
+/* Sidebar style */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-color: #f4f4f4;
+    padding: 20px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    z-index: 999; /* Set z-index high to make sure it stays above the map */
+}
+
+/* Add z-index for the map */
+.map-container {
+    position: relative;
+    z-index: 1; /* Set z-index lower than the sidebar */
+}
+

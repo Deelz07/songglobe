@@ -3,6 +3,7 @@ import L from 'leaflet';
 import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
 import pinImageIcon from './assets/pin_image.png'; // Import the pin image
+import './sidebar.css'; // Make sure the path is correct
 
 const Map = () => {
     const mapRef = useRef(null); // This will hold the map DOM element
@@ -76,7 +77,7 @@ const Map = () => {
     // Initialize the map and load existing pins
     useEffect(() => {
         if (!mapInstance.current && mapRef.current) {
-            mapInstance.current = L.map(mapRef.current).setView([51.505, -0.09], 13);
+            mapInstance.current = L.map(mapRef.current).setView([-37.910257358487584, -214.86470058560374], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
             mapInstance.current.on('click', handleMapClick);
 
@@ -111,11 +112,17 @@ const Map = () => {
 
     // Handle song input change
     const handleSongChange = (event) => {
-        setSong(event.target.value);
+        // Update the song value inside the newPinData object
+        setNewPinData({
+            ...newPinData,
+            song: event.target.value,  // Update only the song value
+        });
     };
+
 
     // Handle pin creation through the sidebar form
     const handleCreatePin = () => {
+        console.log(newPinData);
         const { song, latitude, longitude } = newPinData;
 
         if (!song || !latitude || !longitude) {
@@ -160,7 +167,7 @@ const Map = () => {
 
     return (
         <div>
-            <div style={{ height: '80vh' }} ref={mapRef}></div>
+            <div style={{ height: '100vh' }} ref={mapRef}></div>
 
             {/* Sidebar for displaying pin details and creating a new pin */}
             <div className="sidebar">
@@ -169,6 +176,7 @@ const Map = () => {
                         <h2>Pin Details</h2>
                         <p><strong>Song:</strong> {pinDetails.song}</p>
                         <p><strong>Location:</strong> {pinDetails.location.coordinates[1]}, {pinDetails.location.coordinates[0]}</p>
+                        <p><strong>Date/Time:</strong> {new Date(pinDetails.date_time).toLocaleString()}</p> {/* Format and display the date */}
                         <button onClick={() => handleDeletePin(pinDetails.pin_id)}>Delete Pin</button>
                     </div>
                 ) : (
