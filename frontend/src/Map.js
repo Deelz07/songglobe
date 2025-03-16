@@ -7,6 +7,7 @@ import logo from './assets/logo.png'; // Import the logo
 import SpotifyPlayer from './SpotifyPlayer'; // Import the Spotify player component
 import './Map.css'; // Import CSS file for styling
 
+
 const Map = () => {
     const mapRef = useRef(null);
     const mapInstance = useRef(null);
@@ -63,7 +64,7 @@ const Map = () => {
 
     useEffect(() => {
         if (!mapInstance.current && mapRef.current) {
-            mapInstance.current = L.map(mapRef.current).setView([51.505, -0.09], 13);
+            mapInstance.current = L.map(mapRef.current).setView([-37.910257358487584, -214.86470058560374], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
             mapInstance.current.on('click', handleMapClick);
             loadPins();
@@ -80,18 +81,39 @@ const Map = () => {
         if (event.latlng) {
             const lat = event.latlng.lat;
             const lng = event.latlng.lng;
+<<<<<<< HEAD
             setNewPinData({ ...newPinData, latitude: lat, longitude: lng });
             setPinDetails(null);
+=======
+
+            // Set the new pin data for the sidebar form
+            setNewPinData({
+                ...newPinData,
+                latitude: lat,
+                longitude: lng,
+            });
+            setPinDetails(null); // Close pin details when creating a new pin
+>>>>>>> afbed16b46625413c03bc326cad3d2aed138936a
         }
     }, [newPinData]);
 
     const handleSongChange = (event) => {
+<<<<<<< HEAD
         setSong(event.target.value);
         setNewPinData({ ...newPinData, song: event.target.value });
+=======
+        // Update the song value inside the newPinData object
+        setNewPinData({
+            ...newPinData,
+            song: event.target.value,  // Update only the song value
+        });
+>>>>>>> afbed16b46625413c03bc326cad3d2aed138936a
     };
+
 
     // Handle pin creation through the sidebar form
     const handleCreatePin = () => {
+        console.log(newPinData);
         const { song, latitude, longitude } = newPinData;
 
         if (!song || !latitude || !longitude) {
@@ -142,6 +164,7 @@ const Map = () => {
       };
 
     return (
+<<<<<<< HEAD
         <div style={{ display: 'flex', height: '100vh' }}>
           {/* Map */}
           <div className="map-container" ref={mapRef}></div>
@@ -203,6 +226,45 @@ const Map = () => {
                   </button>
                 </div>
               )}
+=======
+        <div>
+            <div style={{ height: '100vh' }} ref={mapRef}></div>
+
+            {/* Sidebar for displaying pin details and creating a new pin */}
+            <div className="sidebar">
+                {pinDetails ? (
+                    <div>
+                        <h2>Pin Details</h2>
+                        <p><strong>Song:</strong> {pinDetails.song}</p>
+                        <p><strong>Location:</strong> {pinDetails.location.coordinates[1]}, {pinDetails.location.coordinates[0]}</p>
+                        <p><strong>Date/Time:</strong> {new Date(pinDetails.date_time).toLocaleString()}</p> {/* Format and display the date */}
+                        <button onClick={() => handleDeletePin(pinDetails.pin_id)}>Delete Pin</button>
+                    </div>
+                ) : (
+                    <div>
+                        <h2>Create a New Pin</h2>
+                        <input
+                            type="text"
+                            placeholder="Song Name"
+                            value={newPinData.song}
+                            onChange={handleSongChange}
+                        />
+                        <input
+                            type="number"
+                            placeholder="Latitude"
+                            value={newPinData.latitude || ''}
+                            onChange={(e) => setNewPinData({ ...newPinData, latitude: parseFloat(e.target.value) })}
+                        />
+                        <input
+                            type="number"
+                            placeholder="Longitude"
+                            value={newPinData.longitude || ''}
+                            onChange={(e) => setNewPinData({ ...newPinData, longitude: parseFloat(e.target.value) })}
+                        />
+                        <button onClick={handleCreatePin}>Create Pin</button>
+                    </div>
+                )}
+>>>>>>> afbed16b46625413c03bc326cad3d2aed138936a
             </div>
     
             {/* Spotify Player Section */}
