@@ -102,7 +102,6 @@ const Map = () => {
             // Set the new pin data for the sidebar form
             setNewPinData({
                 ...newPinData,
-                song: "what the fuck",
                 latitude: lat,
                 longitude: lng,
             });
