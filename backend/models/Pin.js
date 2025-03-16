@@ -10,7 +10,16 @@ const PinSchema = new mongoose.Schema({
         type: { type: String, enum: ['Point'], required: true, default: 'Point' },
         coordinates: { type: [Number], required: true },  // [longitude, latitude]
     },
-    pin_image: { type: String, default: '/assets/pin_image.png' }  // Updated to use the asset path
+    pin_image: { type: String, default: '/assets/pin_image.png' }, // Updated to use the asset path
+    spotifyMetadata: {
+        type: {
+            title: { type: String, required: true },
+            artist: { type: String, required: true },
+            uri: { type: String, required: true }
+        },
+        required: false,  // Optional, in case some pins don't have Spotify metadata
+        default: null
+    }
 });
 
 // Use the autoIncrement plugin on the pin_id field

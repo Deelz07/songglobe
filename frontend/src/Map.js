@@ -3,14 +3,18 @@ import L from 'leaflet';
 import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
 import pinImageIcon from './assets/pin_image.png'; // Import the pin image
+import logo from './assets/logo.png'; // Import the logo
+import SpotifyPlayer from './SpotifyPlayer'; // Import the Spotify player component
+import './Map.css'; // Import CSS file for styling
 
 const Map = () => {
-    const mapRef = useRef(null); // This will hold the map DOM element
-    const mapInstance = useRef(null); // This will hold the map instance, ensuring it is created only once
-    const markersRef = useRef({}); // Store markers with pin_id as key
+    const mapRef = useRef(null);
+    const mapInstance = useRef(null);
+    const markersRef = useRef({});
+    const spotifyPlayerRef = useRef(null);
 
-    const [song, setSong] = useState(''); // Track song input
-    const [pinDetails, setPinDetails] = useState(null); // Selected pin details for sidebar
+    const [song, setSong] = useState(''); // Track song input, updated by SpotifyPlayer
+    const [pinDetails, setPinDetails] = useState(null);
     const [pins, setPins] = useState([]);
     const [newPinData, setNewPinData] = useState({
         song: '',
@@ -18,7 +22,6 @@ const Map = () => {
         longitude: null,
     });
 
-    // Create a custom icon using the imported image
     const createCustomIcon = () => {
         return L.icon({
             iconUrl: pinImageIcon,
@@ -29,61 +32,42 @@ const Map = () => {
         });
     };
 
-    // Load existing pins from the backend
     const loadPins = useCallback(() => {
         axios.get('http://localhost:5173/api/pins')
             .then(response => {
                 const loadedPins = Array.isArray(response.data) ? response.data : [];
                 setPins(loadedPins);
-                // Clear existing markers
                 Object.values(markersRef.current).forEach(marker => {
-                    if (mapInstance.current) {
-                        mapInstance.current.removeLayer(marker);
-                    }
+                    if (mapInstance.current) mapInstance.current.removeLayer(marker);
                 });
                 markersRef.current = {};
-
-                // Add markers for each pin
                 loadedPins.forEach(pin => {
                     if (!pin.location || !pin.location.coordinates || pin.location.coordinates.length !== 2) {
                         console.error('Invalid pin coordinates:', pin);
                         return;
                     }
-
                     const lng = pin.location.coordinates[0];
                     const lat = pin.location.coordinates[1];
-
-                    // Create and add marker
-                    const marker = L.marker([lat, lng], {
-                        icon: createCustomIcon()
-                    }).addTo(mapInstance.current).bindPopup(`Song: ${pin.song}`);
-
-                    // Store reference to marker
+                    const marker = L.marker([lat, lng], { icon: createCustomIcon() })
+                        .addTo(mapInstance.current)
+                        .bindPopup(`Song: ${pin.song}`);
                     marker.on('click', () => {
-                        // Show the clicked pin's details in the sidebar
                         setPinDetails(pin);
                         mapInstance.current.setView([lat, lng], 13);
                     });
-
                     markersRef.current[pin.pin_id] = marker;
                 });
             })
-            .catch(error => {
-                console.error('Error loading pins:', error);
-            });
+            .catch(error => console.error('Error loading pins:', error));
     }, []);
 
-    // Initialize the map and load existing pins
     useEffect(() => {
         if (!mapInstance.current && mapRef.current) {
             mapInstance.current = L.map(mapRef.current).setView([51.505, -0.09], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
             mapInstance.current.on('click', handleMapClick);
-
-            loadPins(); // Load existing pins after map is initialized
+            loadPins();
         }
-
-        // Cleanup function to remove map instance
         return () => {
             if (mapInstance.current) {
                 mapInstance.current.remove();
@@ -92,26 +76,18 @@ const Map = () => {
         };
     }, [loadPins]);
 
-    // Handle map click to create a new pin
     const handleMapClick = useCallback((event) => {
         if (event.latlng) {
             const lat = event.latlng.lat;
             const lng = event.latlng.lng;
-
-            // Set the new pin data for the sidebar form
-            setNewPinData({
-                ...newPinData,
-                song: "what the fuck",
-                latitude: lat,
-                longitude: lng,
-            });
-            setPinDetails(null); // Close pin details when creating a new pin
+            setNewPinData({ ...newPinData, latitude: lat, longitude: lng });
+            setPinDetails(null);
         }
     }, [newPinData]);
 
-    // Handle song input change
     const handleSongChange = (event) => {
         setSong(event.target.value);
+        setNewPinData({ ...newPinData, song: event.target.value });
     };
 
     // Handle pin creation through the sidebar form
@@ -140,64 +116,102 @@ const Map = () => {
             });
     };
 
-    // Handle pin deletion
+
     const handleDeletePin = (pin_id) => {
         axios.delete(`http://localhost:5173/api/pins/${pin_id}`)
             .then(() => {
-                // Remove the marker from the map
                 if (markersRef.current[pin_id]) {
                     mapInstance.current.removeLayer(markersRef.current[pin_id]);
                     delete markersRef.current[pin_id];
                 }
-                // Update the pins state
                 setPins(prevPins => prevPins.filter(pin => pin.pin_id !== pin_id));
-                setPinDetails(null); // Close sidebar after deletion
+                setPinDetails(null);
             })
-            .catch(error => {
-                console.error('Error deleting pin:', error);
-            });
+            .catch(error => console.error('Error deleting pin:', error));
     };
 
+    const handleSongSelect = (songTitle) => {
+        setSong(songTitle);
+        setNewPinData({ ...newPinData, song: songTitle });
+    };
+
+    const handlePinSongPlay = (songUri) => {
+        if (spotifyPlayerRef.current) {
+          spotifyPlayerRef.current.playSongByUri(songUri);
+        }
+      };
+
     return (
-        <div>
-            <div style={{ height: '80vh' }} ref={mapRef}></div>
-
-            {/* Sidebar for displaying pin details and creating a new pin */}
-            <div className="sidebar">
-                {pinDetails ? (
-                    <div>
-                        <h2>Pin Details</h2>
-                        <p><strong>Song:</strong> {pinDetails.song}</p>
-                        <p><strong>Location:</strong> {pinDetails.location.coordinates[1]}, {pinDetails.location.coordinates[0]}</p>
-                        <button onClick={() => handleDeletePin(pinDetails.pin_id)}>Delete Pin</button>
-                    </div>
-                ) : (
-                    <div>
-                        <h2>Create a New Pin</h2>
-                        <input
-                            type="text"
-                            placeholder="Song Name"
-                            value={newPinData.song}
-                            onChange={handleSongChange}
-                        />
-                        <input
-                            type="number"
-                            placeholder="Latitude"
-                            value={newPinData.latitude || ''}
-                            onChange={(e) => setNewPinData({ ...newPinData, latitude: parseFloat(e.target.value) })}
-                        />
-                        <input
-                            type="number"
-                            placeholder="Longitude"
-                            value={newPinData.longitude || ''}
-                            onChange={(e) => setNewPinData({ ...newPinData, longitude: parseFloat(e.target.value) })}
-                        />
-                        <button onClick={handleCreatePin}>Create Pin</button>
-                    </div>
-                )}
+        <div style={{ display: 'flex', height: '100vh' }}>
+          {/* Map */}
+          <div className="map-container" ref={mapRef}></div>
+    
+          {/* Sidebar */}
+          <div className="sidebar">
+            {/* Logo at the top of the sidebar */}
+            <img src={logo} alt="Logo" className="sidebar-logo" />
+    
+            {/* Pin Details or Create Pin Section */}
+            <div className="pin-section">
+              {pinDetails ? (
+                <div>
+                  <h2>Pin Details</h2>
+                  <p><strong>Song:</strong> {pinDetails.song}</p>
+                  <p>
+                    <strong>Location:</strong> {pinDetails.location.coordinates[1]},{' '}
+                    {pinDetails.location.coordinates[0]}
+                  </p>
+                  {pinDetails.spotifyMetadata && (
+                    <p>
+                      <strong>Artist:</strong> {pinDetails.spotifyMetadata.artist}
+                    </p>
+                  )}
+                  <button onClick={() => handleDeletePin(pinDetails.pin_id)} className="sidebar-button">
+                    Delete Pin
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <h2>Create a New Pin</h2>
+                  <input
+                    type="text"
+                    placeholder="Song Name"
+                    value={newPinData.song}
+                    onChange={handleSongChange}
+                    className="sidebar-input"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Latitude"
+                    value={newPinData.latitude || ''}
+                    onChange={(e) =>
+                      setNewPinData({ ...newPinData, latitude: parseFloat(e.target.value) })
+                    }
+                    className="sidebar-input"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Longitude"
+                    value={newPinData.longitude || ''}
+                    onChange={(e) =>
+                      setNewPinData({ ...newPinData, longitude: parseFloat(e.target.value) })
+                    }
+                    className="sidebar-input"
+                  />
+                  <button onClick={handleCreatePin} className="sidebar-button">
+                    Create Pin
+                  </button>
+                </div>
+              )}
             </div>
+    
+            {/* Spotify Player Section */}
+            <div className="spotify-player-container">
+              <SpotifyPlayer ref={spotifyPlayerRef} onSongSelect={handleSongSelect} />
+            </div>
+          </div>
         </div>
-    );
-};
-
-export default Map;
+      );
+    };
+    
+    export default Map;

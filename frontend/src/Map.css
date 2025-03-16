@@ -1,0 +1,68 @@
+/* Main layout */
+.map-container {
+    flex: 1;
+    height: 100%;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 300px;
+    padding: 20px;
+    background-color: #fff; /* White background */
+    color: #000; /* Black text */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto; /* Allow scrolling if content overflows */
+  }
+  
+  /* Logo in the sidebar */
+  .sidebar-logo {
+    height: 150px; /* Adjust based on your logo size */
+    width: auto;
+    margin-bottom: 20px; /* Space between logo and pin section */
+    display: block; /* Ensure it’s treated as a block element */
+  }
+  
+  /* Pin Section */
+  .pin-section {
+    flex-grow: 1; /* Allow this section to grow but not push Spotify player out */
+  }
+  
+  /* Sidebar Inputs and Buttons */
+  .sidebar-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: #000; /* Black text for input */
+    background-color: #fff; /* White background for input */
+  }
+  
+  .sidebar-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #1db954; /* Spotify green */
+    color: #fff; /* White text for button (contrast against green) */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .sidebar-button:hover {
+    background-color: #1ed760; /* Lighter green on hover */
+  }
+  
+  /* Spotify Player Container */
+  .spotify-player-container {
+    margin-top: 20px;
+  }
+  
+  /* Ensure the map takes up remaining space */
+  .leaflet-container {
+    height: 100%;
+    width: 100%;
+  }
